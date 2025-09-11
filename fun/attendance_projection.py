@@ -24,39 +24,36 @@ def get_input():
         conducted = int(input("  Ab tak kitni hui: "))
         attended = int(input("  Kitni li: "))
         per_week = int(input("  kitni classes lag rhi hai week m: "))
-        data.append({
-            "subject": sub,
-            "conducted": conducted,
-            "attended": attended,
-            "per_week": per_week
-        })
+        data.append([conducted, attended, per_week, sub])
     return data
 
 def calc_projection(data, target_date):
     today = date.today()
-   
-    days_remaining = (target_date - today).days
-    weeks_remaining = days_remaining / 5 
-    
+    days_left = (target_date - today).days
+    weeks_left = days_left / 5
+
     print("\n--- Projection Result ---")
     total_conducted = 0
     total_attended = 0
-    for row in data:
-        future_sessions = row["per_week"] * weeks_remaining
-        proj_conducted = row["conducted"] + future_sessions
-        proj_attended = row["attended"] + future_sessions 
-        percentage = (proj_attended / proj_conducted * 100) if proj_conducted > 0 else 0
-        
-        print(f"{row['subject']}: Projected = {percentage:.2f}%")
-        
+    for conducted, attended, per_week, sub in data:
+        future = per_week * weeks_left
+        proj_conducted = conducted + future
+        proj_attended = attended + future
+        if proj_conducted > 0:
+            perc = (proj_attended / proj_conducted) * 100
+        else:
+            perc = 0
+        print(f"{sub}: Projected = {perc:.2f}%")
         total_conducted += proj_conducted
         total_attended += proj_attended
-    
-    overall = (total_attended / total_conducted * 100) if total_conducted > 0 else 0
+
+    if total_conducted > 0:
+        overall = (total_attended / total_conducted) * 100
+    else:
+        overall = 0
     print(f"\n👉 Tumhari total attendence hojaegi {target_date} tak: {overall:.2f}%")
 
 if __name__ == "__main__":
     data = get_input()
-   
     target_date = datetime.strptime("2025-09-26", "%Y-%m-%d").date()
     calc_projection(data, target_date)

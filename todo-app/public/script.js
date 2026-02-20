@@ -1,20 +1,16 @@
 console.log("Script loaded");
 
 async function fetchTodos() {
-
   const list = document.getElementById("todoList");
 
-  // Loading shimmer
   list.innerHTML = `
     <div class="loading"></div>
     <div class="loading"></div>
   `;
-
   const res = await fetch("/api/todos");
   const todos = await res.json();
 
   list.innerHTML = "";
-
   if (todos.length === 0) {
     list.innerHTML = "<p style='color:#6b7280;'>No tasks yet.</p>";
     return;
@@ -22,9 +18,7 @@ async function fetchTodos() {
 
   todos.forEach((todo, index) => {
     const li = document.createElement("li");
-
     li.style.animationDelay = `${index * 0.05}s`;
-
     if (index === todos.length - 1) {
       li.classList.add("new-task");
     }
@@ -42,7 +36,6 @@ async function fetchTodos() {
     list.appendChild(li);
   });
 }
-
 
 async function addTodo() {
   const input = document.getElementById("taskInput");

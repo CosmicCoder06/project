@@ -5,7 +5,7 @@
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, rgb(255, 255, 171), rgb(230, 170, 230), rgb(156, 219, 210));
+  background: lwhite;
   background-size: 200% 200%;
   color: navy;
   display: flex;

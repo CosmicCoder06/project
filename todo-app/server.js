@@ -5,36 +5,55 @@ const path = require("path");
 const app = express();
 const PORT = 3000;
 
+// Absolute path to todos file
 const TODO_FILE = path.join(__dirname, "todos.json");
 
-/* ---------------- MIDDLEWARE ---------------- */
-
+// Middleware
 app.use(express.json());
-app.use(express.static("public"));
 
-/* ---------------- HELPERS ---------------- */
+// Serve static files correctly
+app.use(express.static(path.join(__dirname, "public")));
 
+// ✅ Root route fix (guaranteed to work)
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// 🧠 Safe read function (no crashes)
 function readTodos() {
-  if (!fs.existsSync(TODO_FILE)) return [];
-  return JSON.parse(fs.readFileSync(TODO_FILE, "utf-8") || "[]");
+  try {
+    if (!fs.existsSync(TODO_FILE)) return [];
+    const data = fs.readFileSync(TODO_FILE, "utf-8");
+    return JSON.parse(data || "[]");
+  } catch (err) {
+    console.error("❌ Error reading todos:", err);
+    return [];
+  }
 }
 
+// 🧠 Safe write
 function writeTodos(todos) {
-  fs.writeFileSync(TODO_FILE, JSON.stringify(todos, null, 2));
+  try {
+    fs.writeFileSync(TODO_FILE, JSON.stringify(todos, null, 2));
+  } catch (err) {
+    console.error("❌ Error writing todos:", err);
+  }
 }
 
-/* ---------------- ROUTES ---------------- */
+// 📌 Routes
 
+// Get all todos
 app.get("/api/todos", (req, res) => {
   res.json(readTodos());
 });
 
+// Add todo
 app.post("/api/todos", (req, res) => {
   const todos = readTodos();
 
   const newTodo = {
     id: Date.now(),
-    task: req.body.task,
+    task: req.body.task || "Untitled Task",
     done: false
   };
 
@@ -44,11 +63,14 @@ app.post("/api/todos", (req, res) => {
   res.json(newTodo);
 });
 
+// Toggle done
 app.put("/api/todos/:id", (req, res) => {
   const todos = readTodos();
   const todo = todos.find(t => t.id == req.params.id);
 
-  if (!todo) return res.status(404).json({ error: "Not found" });
+  if (!todo) {
+    return res.status(404).json({ error: "Not found" });
+  }
 
   todo.done = !todo.done;
   writeTodos(todos);
@@ -56,14 +78,18 @@ app.put("/api/todos/:id", (req, res) => {
   res.json(todo);
 });
 
+// Delete todo
 app.delete("/api/todos/:id", (req, res) => {
-  const todos = readTodos().filter(t => t.id != req.params.id);
-  writeTodos(todos);
+  const todos = readTodos();
+  const filtered = todos.filter(t => t.id != req.params.id);
+
+  writeTodos(filtered);
   res.json({ success: true });
 });
 
-/* ---------------- START SERVER ---------------- */
-
+// 🚀 Start server (with error catch)
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+}).on("error", (err) => {
+  console.error("❌ Server failed to start:", err);
 });

@@ -59,22 +59,20 @@ async function markDone(id) {
 async function deleteTodo(id) {
   const listItem = [...document.querySelectorAll("li")]
     .find(li => li.innerHTML.includes(id));
-
   if (listItem) {
     listItem.classList.add("removing");
     setTimeout(async () => {
       await fetch(`/api/todos/${id}`, { method: "DELETE" });
       fetchTodos();
     }, 250);
-  } else {
+  } 
+  else {
     await fetch(`/api/todos/${id}`, { method: "DELETE" });
     fetchTodos();
   }
 }
 
-
 fetchTodos()
-
 document.getElementById("addBtn").addEventListener("click", addTodo);
 document.getElementById("taskInput")
   .addEventListener("keydown", function (e) {
@@ -82,7 +80,8 @@ document.getElementById("taskInput")
       e.preventDefault();
       addTodo();
     }
-  });
+  }
+);
 
 
 
